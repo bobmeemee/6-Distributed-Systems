@@ -15,7 +15,7 @@ import java.util.Set;
 @RestController
 public class NamingServer {
     private final CustomMap nodeMap;
-    private final HashMap<Integer, Integer> fileMap;
+    private HashMap<Integer, Integer> fileMap;
     private HashMap<Integer, FailureWatcher> failureMap;
 
     private NamingServerUDPInterface udpInterface;
@@ -156,6 +156,21 @@ public class NamingServer {
     public FailureWatcher getNodeFailureWatcher(int nodeID) {
         return this.failureMap.get(nodeID);
     }
+
+    public int getFileOwner(int fileID, int senderID) throws UnknownHostException {
+        int owner = senderID;
+        for(int key : this.nodeMap.keySet()) {
+            if(key < fileID) {
+                owner = key;
+            }
+        }
+        return owner;
+    }
+
+    public String getNodeIP(int nodeID) {
+        return nodeMap.get(nodeID);
+    }
+
 
 
     // testing purposes

@@ -1,6 +1,7 @@
 package Server;
 
 
+import Messages.FileOwnerIDMessage;
 import Messages.Message;
 import Messages.NodeCountMessage;
 import Utils.HashFunction;
@@ -9,6 +10,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 public class NamingServerRequestHandler extends Thread {
@@ -64,6 +66,25 @@ public class NamingServerRequestHandler extends Thread {
 
             case "PingMessage":
                 this.server.getNodeFailureWatcher(senderID).incrementTimeOutCounter();
+
+                break;
+
+            case "GetFileOwnerMessage":
+                // no replication if only node in network
+                if(server.getNodeCount() > 1) {
+                    // get IP node to replicate
+                    try {
+                        int ownerID = server.getFileOwner(message.getContent(), senderID);
+                        if(ownerID != senderID) {
+                            // do not replicate if local file owner is remote owner
+                            InetAddress ownerIP = InetAddress.getByName(this.server.getNodeIP(ownerID));
+                            response = new FileOwnerIDMessage(this.server.getServerID(), ownerID, ownerIP);
+                            responseIsMulticast = false;
+                        }
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 break;
         }
