@@ -135,6 +135,16 @@ public class RequestHandler extends Thread {
 
                 break;
 
+            case "FileOwnerIDMessage":
+                FileOwnerIDMessage fileMessage = gson.fromJson(json, FileOwnerIDMessage.class);
+                InetAddress ownerIP = fileMessage.getOwnerIP();
+                // send file to dest with tcp interface
+
+                // add file owner our database of file locations
+                this.node.getFileManager().addFileOwner(fileMessage.getContent(), ownerIP);
+
+                break;
+
 
             default:
                 break;

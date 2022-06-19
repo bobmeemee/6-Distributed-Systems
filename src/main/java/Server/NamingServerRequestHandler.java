@@ -74,11 +74,12 @@ public class NamingServerRequestHandler extends Thread {
                 if(server.getNodeCount() > 1) {
                     // get IP node to replicate
                     try {
-                        int ownerID = server.getFileOwner(message.getContent(), senderID);
+                        int fileID = message.getContent();
+                        int ownerID = server.getFileOwner(fileID, senderID);
                         if(ownerID != senderID) {
                             // do not replicate if local file owner is remote owner
                             InetAddress ownerIP = InetAddress.getByName(this.server.getNodeIP(ownerID));
-                            response = new FileOwnerIDMessage(this.server.getServerID(), ownerID, ownerIP);
+                            response = new FileOwnerIDMessage(this.server.getServerID(),fileID, ownerIP);
                             responseIsMulticast = false;
                         }
                     } catch (UnknownHostException e) {

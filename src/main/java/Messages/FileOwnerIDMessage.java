@@ -4,9 +4,10 @@ import java.net.InetAddress;
 
 public class FileOwnerIDMessage extends Message {
     InetAddress ownerIP;
-    public FileOwnerIDMessage(int sender, int ownerID, InetAddress ownerIP) {
+
+    public FileOwnerIDMessage(int sender, int fileID, InetAddress ownerIP) {
         super(sender);
-        super.content = ownerID;
+        super.content = fileID;
         this.ownerIP = ownerIP;
     }
 

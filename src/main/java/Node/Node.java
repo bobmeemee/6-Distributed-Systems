@@ -18,6 +18,8 @@ public class Node {
     private UDPInterface udpInterface;
     public boolean hasFailed = false;
 
+    public LocalFileManager fileManager;
+
     public Node(String name) throws IOException {
         this.name = name;
         this.nodeID = HashFunction.hash(name);
@@ -32,9 +34,15 @@ public class Node {
             hasFailed = true;
         }
 
-
+        // start discovery on this node
         this.discovery();
 
+        // start monitoring local files
+        this.fileManager = new LocalFileManager(this, "");
+        new Thread(this.fileManager).start();
+
+
+        // shut node down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("[NODE] Shutdown hook");
             try {
@@ -53,6 +61,10 @@ public class Node {
 
     public UDPInterface getUdpInterface() {
         return udpInterface;
+    }
+
+    public LocalFileManager getFileManager() {
+        return fileManager;
     }
 
     public int getNextID() {return nextID;}
