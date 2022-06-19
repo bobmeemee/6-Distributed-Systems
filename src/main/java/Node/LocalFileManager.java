@@ -13,17 +13,32 @@ import java.util.Objects;
 
 public class LocalFileManager extends Thread{
     private final Node node;
-    private HashMap<Integer, InetAddress> fileReplicaLocations;
-    ArrayList<String> filenames;
+    private HashMap<String, FileLog> files;
+    private ArrayList<String> filenames;
 
     public LocalFileManager(Node node, String filepath) {
         this.node = node;
-        fileReplicaLocations = new HashMap<>();
+        files = new HashMap<>();
     }
 
-    public void addFileOwner(int fileID, InetAddress ownerIP) {
-        this.fileReplicaLocations.put(fileID, ownerIP);
+
+
+    public FileLog createFileLog(String filename) {
+        return new FileLog(filename, HashFunction.hash(filename), -1, this.node.getNodeID());
     }
+
+    public void initialize() {
+        File f = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
+        this.filenames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f.list())));
+        System.out.println("[NODE]: Starting local file manager... ");
+        System.out.println("[NODE]: Local files found: " + filenames);
+        for (String filename :filenames) {
+            files.put(filename, createFileLog(filename));
+        }
+
+    }
+
+
 
     @Override
     public void run() {
@@ -38,15 +53,11 @@ public class LocalFileManager extends Thread{
             }
         }
 
-        // get file database
-        File f = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
-        this.filenames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f.list())));
-        System.out.println("[NODE]: Starting local file manager... ");
-        System.out.println("[NODE]: Local files found: " + filenames);
+        this.initialize();
 
         // send udp to request filenames
         try {
-            for (String filename : filenames) {
+            for (String filename : this.filenames) {
                 System.out.println("[NODE]: Requesting replication address for: " + filename);
                 int fileID = HashFunction.hash(filename);
                 node.getUdpInterface().sendUnicast(new GetFileOwnerMessage(this.node.getNodeID(), fileID),
@@ -58,6 +69,7 @@ public class LocalFileManager extends Thread{
             e.printStackTrace();
         }
 
+        // check database for updates etc
         while (true) {
             // interval, interrupt catch covers shutdown while sleeping -> not an error in our case
             try {
@@ -69,12 +81,15 @@ public class LocalFileManager extends Thread{
             File f1 = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
             ArrayList<String> newFileNames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f1.list())));
 
-            // update -> send new file req
+            // file added -> send new file req
             if(newFileNames.size() > this.filenames.size()) {
                 System.out.println("[NODE]: New files found on node");
                 for(String filename : newFileNames) {
                     if(!this.filenames.contains(filename)) {
                         System.out.println("[NODE]: Requesting replication address for: " + filename);
+                        // create file log for new file
+                        this.files.put(filename, createFileLog(filename));
+
                         int fileID = HashFunction.hash(filename);
                         try {
                             node.getUdpInterface().sendUnicast(new GetFileOwnerMessage(this.node.getNodeID(), fileID),
@@ -90,12 +105,14 @@ public class LocalFileManager extends Thread{
                 this.filenames = newFileNames;
             }
 
-            // file deleted
-            if(this. filenames.size() > newFileNames.size()) {
+            // file deleted -> send update if needed
+            if(this.filenames.size() > newFileNames.size()) {
                 for (String filename : newFileNames) {
-                    if(!newFileNames.contains(filename)) {
+                    if(!newFileNames.contains(filename) && files.get(filename).isReplicated()) {
+
                         int fileID = HashFunction.hash(filename);
                         // send delete file message tcp? udp?
+
 
                     }
                 }

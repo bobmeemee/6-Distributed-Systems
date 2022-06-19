@@ -170,7 +170,9 @@ public class NamingServer {
         return nodeMap.get(nodeID);
     }
 
-
+    public HashMap<Integer, Integer> getFileMap() {
+        return fileMap;
+    }
 
     // testing purposes
     public static void main(String[] args) {

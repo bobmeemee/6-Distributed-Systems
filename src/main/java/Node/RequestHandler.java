@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 public class RequestHandler extends Thread {
@@ -138,10 +139,20 @@ public class RequestHandler extends Thread {
             case "FileOwnerIDMessage":
                 FileOwnerIDMessage fileMessage = gson.fromJson(json, FileOwnerIDMessage.class);
                 InetAddress ownerIP = fileMessage.getOwnerIP();
-                // send file to dest with tcp interface
+                int fileID = fileMessage.getContent();
+                try {
+                    if(ownerIP == InetAddress.getByName("0.0.0.0")) {
+                        System.out.println("[NODE]: filename for file with hash " + fileID + " is not available");
+                    } else {
+                        // send file to dest with tcp interface
 
-                // add file owner our database of file locations
-                this.node.getFileManager().addFileOwner(fileMessage.getContent(), ownerIP);
+                        // add file owner our database of file locations
+
+                    }
+
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
 
                 break;
 

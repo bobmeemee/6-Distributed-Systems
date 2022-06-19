@@ -71,16 +71,21 @@ public class NamingServerRequestHandler extends Thread {
 
             case "GetFileOwnerMessage":
                 // no replication if only node in network
+
                 if(server.getNodeCount() > 1) {
                     // get IP node to replicate
                     try {
                         int fileID = message.getContent();
                         int ownerID = server.getFileOwner(fileID, senderID);
-                        if(ownerID != senderID) {
-                            // do not replicate if local file owner is remote owner
+                        // do not replicate if local file owner is remote owner or if filename is taken
+                        if(ownerID != senderID && !this.server.getFileMap().containsKey(fileID)) {
                             InetAddress ownerIP = InetAddress.getByName(this.server.getNodeIP(ownerID));
                             response = new FileOwnerIDMessage(this.server.getServerID(),fileID, ownerIP);
                             responseIsMulticast = false;
+                        } else if(this.server.getFileMap().containsKey(fileID)) {
+                            response = new FileOwnerIDMessage(this.server.getServerID(),fileID); // no owner
+                            responseIsMulticast = false;
+
                         }
                     } catch (UnknownHostException e) {
                         e.printStackTrace();
