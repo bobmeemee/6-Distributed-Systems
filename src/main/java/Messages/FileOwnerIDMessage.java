@@ -7,6 +7,7 @@ public class FileOwnerIDMessage extends Message {
 
     public FileOwnerIDMessage(int sender, int fileID, InetAddress ownerIP) {
         super(sender);
+        super.type="FileOwnerIDMessage";
         super.content = fileID;
         this.ownerIP = ownerIP;
     }

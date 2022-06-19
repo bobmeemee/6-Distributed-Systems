@@ -145,7 +145,6 @@ public class NamingServer {
     }
 
     public int getNodeCount() {
-        System.out.println("[NAMESERVER]: amount of nodes currently in network: " + nodeMap.size());
         return nodeMap.size();
     }
 
