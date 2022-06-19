@@ -19,6 +19,24 @@ public class LocalFileManager extends Thread{
     public LocalFileManager(Node node, String filepath) {
         this.node = node;
         fileReplicaLocations = new HashMap<>();
+    }
+
+    public void addFileOwner(int fileID, InetAddress ownerIP) {
+        this.fileReplicaLocations.put(fileID, ownerIP);
+    }
+
+    @Override
+    public void run() {
+
+        // do not start until connection with the server is established
+        // after testing -> change to do not start connection until other node joined the network
+        while(this.node.getNextID() == -1  || this.node.getPreviousID() == -1) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
 
         // get file database
         File f = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
@@ -39,55 +57,48 @@ public class LocalFileManager extends Thread{
             node.hasFailed = true;
             e.printStackTrace();
         }
-    }
 
-    public void addFileOwner(int fileID, InetAddress ownerIP) {
-        this.fileReplicaLocations.put(fileID, ownerIP);
-    }
+        while (true) {
+            // interval, interrupt catch covers shutdown while sleeping -> not an error in our case
+            try {
+                sleep(4000);
+            } catch (InterruptedException e) {
+                return;
+            }
+            // keep checking changes
+            File f1 = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
+            ArrayList<String> newFileNames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f1.list())));
 
-    @Override
-    public void run() {
-        // interval, interrupt catch covers shutdown while sleeping -> not an error in our case
-        try {
-            sleep(4000);
-        } catch (InterruptedException e) {
-            return;
-        }
-        // keep checking changes
-        File f = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
-        ArrayList<String> newFileNames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f.list())));
-
-        // update -> send new file req
-        if(newFileNames.size() > this.filenames.size()) {
-            System.out.println("[NODE]: New files found on node");
-            for(String filename : newFileNames) {
-                if(!this.filenames.contains(filename)) {
-                    System.out.println("[NODE]: Requesting replication address for: " + filename);
-                    int fileID = HashFunction.hash(filename);
-                    try {
-                        node.getUdpInterface().sendUnicast(new GetFileOwnerMessage(this.node.getNodeID(), fileID),
-                                InetAddress.getByName("255.255.255.255"),
-                                8000);
-                    } catch (IOException e) {
-                        this.node.hasFailed = true;
-                        e.printStackTrace();
+            // update -> send new file req
+            if(newFileNames.size() > this.filenames.size()) {
+                System.out.println("[NODE]: New files found on node");
+                for(String filename : newFileNames) {
+                    if(!this.filenames.contains(filename)) {
+                        System.out.println("[NODE]: Requesting replication address for: " + filename);
+                        int fileID = HashFunction.hash(filename);
+                        try {
+                            node.getUdpInterface().sendUnicast(new GetFileOwnerMessage(this.node.getNodeID(), fileID),
+                                    InetAddress.getByName("255.255.255.255"),
+                                    8000);
+                        } catch (IOException e) {
+                            this.node.hasFailed = true;
+                            e.printStackTrace();
+                        }
                     }
                 }
+                // update file names
+                this.filenames = newFileNames;
             }
-            // update file names
-            this.filenames = newFileNames;
-        }
 
-        // file deleted
-        if(this. filenames.size() > newFileNames.size()) {
-            for (String filename : newFileNames) {
-                if(!newFileNames.contains(filename)) {
-                    int fileID = HashFunction.hash(filename);
-                    // send delete file message tcp? udp?
+            // file deleted
+            if(this. filenames.size() > newFileNames.size()) {
+                for (String filename : newFileNames) {
+                    if(!newFileNames.contains(filename)) {
+                        int fileID = HashFunction.hash(filename);
+                        // send delete file message tcp? udp?
 
+                    }
                 }
-
-
             }
         }
     }
