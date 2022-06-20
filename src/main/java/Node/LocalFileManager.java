@@ -13,6 +13,8 @@ import java.util.Objects;
 
 public class LocalFileManager extends Thread{
     private final Node node;
+    private final String filepath;
+
     private HashMap<File, FileLog> fileMap;
     private HashMap<Integer, File> fileIDMap; // collapse in one map?
     private ArrayList<String> filenames;
@@ -21,6 +23,7 @@ public class LocalFileManager extends Thread{
         this.node = node;
         fileMap = new HashMap<>();
         fileIDMap = new HashMap<>();
+        this.filepath = filepath;
     }
 
 
@@ -41,8 +44,8 @@ public class LocalFileManager extends Thread{
 
 
     public void initialize() {
-        File f = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
-        this.filenames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f.list())));
+        File f = new File(this.filepath);
+        this.filenames = new ArrayList<>(Arrays.asList(f.list()));
         System.out.println("[NODE]: Starting local file manager... ");
         System.out.println("[NODE]: Local files found: " + filenames);
         File[] fileList = f.listFiles();
@@ -93,7 +96,7 @@ public class LocalFileManager extends Thread{
                 return;
             }
             // keep checking folder
-            File f1 = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
+            File f1 = new File(this.filepath);
             File[] f1List = f1.listFiles();
             ArrayList<String> newFileNames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f1.list())));
 

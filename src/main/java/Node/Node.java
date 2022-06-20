@@ -43,7 +43,7 @@ public class Node {
         this.discovery();
 
         // start monitoring local files
-        this.fileManager = new LocalFileManager(this, "");
+        this.fileManager = new LocalFileManager(this, "src/main/java/Node/files");
         new Thread(this.fileManager).start();
 
 
