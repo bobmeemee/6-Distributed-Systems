@@ -9,7 +9,8 @@ import java.net.UnknownHostException;
 public class TCPInterface implements Runnable{
     private final Node node;
     private final int port = 8002;
-    ServerSocket receiveSocket;
+    private ServerSocket receiveSocket;
+    private final String path = "src/main/java/Node/replicas";
 
     public TCPInterface(Node node) {
         this.node = node;
@@ -56,10 +57,30 @@ public class TCPInterface implements Runnable{
             try {
                 Socket socket = receiveSocket.accept();
                 System.out.println("[NODE TCP]: accepted connection from"  + socket.getInetAddress() );
-                TCPFileHandler tfh = new TCPFileHandler(this.node, socket );
-                tfh.start();
+                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 
-            } catch (IOException e) {
+                FileLog log = (FileLog) objectInputStream.readObject();
+
+
+                String filename = log.getFilename();
+                FileOutputStream fileOutputStream = new FileOutputStream(this.path + "/" + filename);
+
+                int bytes;
+                long size = dataInputStream.readLong();
+                byte[] buffer = new byte[4*1024];
+                while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
+                    fileOutputStream.write(buffer,0,bytes);
+                    size -= bytes;
+                }
+                fileOutputStream.close();
+
+                // add replica to database
+                this.node.getReplicaManager().addReplica(log);
+                // TCPFileHandler tfh = new TCPFileHandler(this.node, socket );
+                // tfh.start();
+
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
