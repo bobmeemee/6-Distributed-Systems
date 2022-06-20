@@ -90,7 +90,8 @@ public class NamingServer {
     }
 
     public String addNode(int nodeID, InetAddress IP) throws IOException {
-        if (nodeMap.putIfAbsent(nodeID, IP.toString()) == null) {
+        String ip = IP.getHostAddress();
+        if (nodeMap.putIfAbsent(nodeID, ip) == null) {
 
             FailureWatcher f = new FailureWatcher(this, IP, nodeID);
             failureMap.put(nodeID, f);
