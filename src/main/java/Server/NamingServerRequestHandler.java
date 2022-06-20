@@ -79,7 +79,8 @@ public class NamingServerRequestHandler extends Thread {
                         int ownerID = server.getFileOwner(fileID, senderID);
                         // do not replicate if local file owner is remote owner or if filename is taken
                         if(ownerID != senderID && !this.server.getFileMap().containsKey(fileID)) {
-                            System.out.println("[NS UDP]: owner IP" + this.server.getNodeIP(ownerID));
+                            System.out.println("[NAMINGSERVER]: owner ID " + ownerID);
+                            System.out.println("[NAMINGSERVER]: owner IP " + this.server.getNodeIP(ownerID));
                             InetAddress ownerIP = InetAddress.getByName(this.server.getNodeIP(ownerID));
                             response = new FileOwnerIDMessage(this.server.getServerID(),fileID, ownerID ,ownerIP);
                             responseIsMulticast = false;
