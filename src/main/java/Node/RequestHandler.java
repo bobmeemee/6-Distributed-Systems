@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class RequestHandler extends Thread {
@@ -71,6 +73,23 @@ public class RequestHandler extends Thread {
                     System.out.println("[NODE]: next " + this.node.getNextID());
                     System.out.println("[NODE]: new previous " + this.node.getPreviousID());
                 }
+
+                // check if replica needs to be moved to another node
+                /* not needed, error prone
+                HashMap<Integer, FileLog> h = this.node.getReplicaManager().getfileLogs();
+                for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
+                    if(entry.getKey() > senderID && senderID > this.node.getNodeID()) {
+                        //
+                        FileLog log = entry.getValue();
+                        log.setOwnerID(senderID);
+                        log.setOwnerIP(senderIP);
+
+                        this.node.getTcpInterface().sendFile(senderIP, , log);
+                    }
+                }
+                */
+
+
                 break;
             case "LeavingNetworkMessage":
                 LeavingNetworkMessage m = gson.fromJson(json, LeavingNetworkMessage.class);

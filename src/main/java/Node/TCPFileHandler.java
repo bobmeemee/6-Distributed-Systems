@@ -10,6 +10,7 @@ public class TCPFileHandler extends Thread{
 
     private final Node node;
     private final Socket socket;
+    private final String path = "src/main/java/Node/replicas";
 
     public TCPFileHandler(Node node, Socket socket) {
         this.node = node;
@@ -23,12 +24,12 @@ public class TCPFileHandler extends Thread{
             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 
             FileLog log = (FileLog) objectInputStream.readObject();
-            /*
-            String filepath = node.getReplicaManager().addFile(log);
+
+
+            String filename = log.getFilename();
+            FileOutputStream fileOutputStream = new FileOutputStream(path + "/" + filename);
 
             int bytes;
-            FileOutputStream fileOutputStream = new FileOutputStream(filepath);
-
             long size = dataInputStream.readLong();
             byte[] buffer = new byte[4*1024];
             while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
@@ -36,7 +37,10 @@ public class TCPFileHandler extends Thread{
                 size -= bytes;
             }
             fileOutputStream.close();
-            */
+
+            // add replica to database
+            this.node.getReplicaManager().addReplica(log);
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

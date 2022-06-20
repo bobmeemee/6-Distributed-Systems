@@ -19,7 +19,9 @@ public class Node {
     private TCPInterface tcpInterface;
     public boolean hasFailed = false;
 
-    public LocalFileManager fileManager;
+    private final LocalFileManager fileManager;
+    private ReplicaManager replicaManager;
+
 
     public Node(String name) throws IOException {
         this.name = name;
@@ -45,6 +47,8 @@ public class Node {
         // start monitoring local files
         this.fileManager = new LocalFileManager(this, "src/main/java/Node/files");
         new Thread(this.fileManager).start();
+
+        this.replicaManager = new ReplicaManager(this, "src/main/java/Node/replicas");
 
 
         // shut node down
@@ -79,6 +83,10 @@ public class Node {
 
     public TCPInterface getTcpInterface() {
         return tcpInterface;
+    }
+
+    public ReplicaManager getReplicaManager() {
+        return replicaManager;
     }
 
     public void discovery() throws IOException {

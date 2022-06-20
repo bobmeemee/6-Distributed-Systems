@@ -21,6 +21,10 @@ public class FileLog implements Serializable {
         this.localOwnerID = localOwnerID;
     }
 
+    public void setOwnerIP(InetAddress ownerIP) {
+        this.ownerIP = ownerIP;
+    }
+
     public boolean isReplicated() {
         return replicated;
     }
@@ -53,5 +57,11 @@ public class FileLog implements Serializable {
         this.localOwnerID = localOwnerID;
     }
 
+    public InetAddress getOwnerIP() {
+        return ownerIP;
+    }
 
+    public InetAddress getLocalOwnerIP() {
+        return localOwnerIP;
+    }
 }
