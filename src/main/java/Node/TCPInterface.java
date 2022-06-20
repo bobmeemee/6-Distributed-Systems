@@ -54,7 +54,8 @@ public class TCPInterface implements Runnable{
         while(true) {
             try {
                 Socket socket = receiveSocket.accept();
-                System.out.println("[NODE TCP]: accepted connection" );
+                System.out.println("[NODE TCP]: accepted connection from"  + socket.getInetAddress() );
+
 
             } catch (IOException e) {
                 e.printStackTrace();
