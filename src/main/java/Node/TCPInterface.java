@@ -24,7 +24,7 @@ public class TCPInterface implements Runnable{
 
     public void sendFile(InetAddress destinationAddress, File file, FileLog log) {
         try {
-            Socket sendSocket = new Socket(destinationAddress,sendPort);
+            Socket sendSocket = new Socket(destinationAddress,receivePort);
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(sendSocket.getOutputStream());
             objectOutputStream.writeObject(log);
@@ -50,10 +50,11 @@ public class TCPInterface implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("[NODE TCP]: Opening TCP listening on port" + receivePort);
+        System.out.println("[NODE TCP]: Opening TCP listening on port " + receivePort);
         while(true) {
             try {
                 Socket socket = receiveSocket.accept();
+                System.out.println("[NODE TCP]: accepted connection" );
 
             } catch (IOException e) {
                 e.printStackTrace();
