@@ -13,17 +13,18 @@ import java.util.Objects;
 
 public class LocalFileManager extends Thread{
     private final Node node;
-    private HashMap<String, FileLog> files;
+    private HashMap<File, FileLog> fileMap;
     private ArrayList<String> filenames;
 
     public LocalFileManager(Node node, String filepath) {
         this.node = node;
-        files = new HashMap<>();
+        fileMap = new HashMap<>();
     }
 
 
 
-    public FileLog createFileLog(String filename) {
+    public FileLog createFileLog(File file) {
+        String filename = file.getName();
         return new FileLog(filename, HashFunction.hash(filename), -1, this.node.getNodeID());
     }
 
@@ -32,10 +33,12 @@ public class LocalFileManager extends Thread{
         this.filenames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f.list())));
         System.out.println("[NODE]: Starting local file manager... ");
         System.out.println("[NODE]: Local files found: " + filenames);
-        for (String filename :filenames) {
-            files.put(filename, createFileLog(filename));
+        File[] fileList = f.listFiles();
+        if(fileList != null) {
+            for (File file :fileList) {
+                fileMap.put(file, createFileLog(file));
+            }
         }
-
     }
 
 
@@ -57,9 +60,9 @@ public class LocalFileManager extends Thread{
 
         // send udp to request filenames
         try {
-            for (String filename : this.filenames) {
-                System.out.println("[NODE]: Requesting replication address for: " + filename);
-                int fileID = HashFunction.hash(filename);
+            for (File file : this.fileMap.keySet()) {
+                System.out.println("[NODE]: Requesting replication address for: " + file.getName());
+                int fileID = HashFunction.hash(file.getName());
                 node.getUdpInterface().sendUnicast(new GetFileOwnerMessage(this.node.getNodeID(), fileID),
                         InetAddress.getByName("255.255.255.255"),
                         8000);
@@ -69,7 +72,7 @@ public class LocalFileManager extends Thread{
             e.printStackTrace();
         }
 
-        // check database for updates etc
+        // check database for updates etc. in infinite loop
         while (true) {
             // interval, interrupt catch covers shutdown while sleeping -> not an error in our case
             try {
@@ -77,19 +80,22 @@ public class LocalFileManager extends Thread{
             } catch (InterruptedException e) {
                 return;
             }
-            // keep checking changes
+            // keep checking folder
             File f1 = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");
+            File[] f1List = f1.listFiles();
             ArrayList<String> newFileNames = new ArrayList<>(Arrays.asList(Objects.requireNonNull(f1.list())));
 
             // file added -> send new file req
-            if(newFileNames.size() > this.filenames.size()) {
+            if( (newFileNames.size() > this.filenames.size()) && (f1List != null) ) {
                 System.out.println("[NODE]: New files found on node");
-                for(String filename : newFileNames) {
-                    if(!this.filenames.contains(filename)) {
+                for(File file : f1List) {
+                    String filename = file.getName();
+                    if(!this.filenames.contains(file.getName())) {
                         System.out.println("[NODE]: Requesting replication address for: " + filename);
-                        // create file log for new file
-                        this.files.put(filename, createFileLog(filename));
+                        // create file log entry for new file
+                        this.fileMap.put(file, createFileLog(file));
 
+                        // calculate hash and send req
                         int fileID = HashFunction.hash(filename);
                         try {
                             node.getUdpInterface().sendUnicast(new GetFileOwnerMessage(this.node.getNodeID(), fileID),
@@ -105,10 +111,11 @@ public class LocalFileManager extends Thread{
                 this.filenames = newFileNames;
             }
 
-            // file deleted -> send update if needed
-            if(this.filenames.size() > newFileNames.size()) {
-                for (String filename : newFileNames) {
-                    if(!newFileNames.contains(filename) && files.get(filename).isReplicated()) {
+            // file deleted -> send update if file is replicated
+            if(this.filenames.size() > newFileNames.size() && f1List != null) {
+                for (File file : f1List) {
+                    String filename = file.getName();
+                    if(!newFileNames.contains(filename) && fileMap.get(file).isReplicated()) {
 
                         int fileID = HashFunction.hash(filename);
                         // send delete file message tcp? udp?

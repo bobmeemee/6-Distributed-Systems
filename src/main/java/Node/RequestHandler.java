@@ -145,6 +145,8 @@ public class RequestHandler extends Thread {
                         System.out.println("[NODE]: filename for file with hash " + fileID + " is not available");
                     } else {
                         // send file to dest with tcp interface
+                        // this.node.getFileManager().
+                        // this.node.getTcpInterface().sendFile(ownerIP, ,);
 
                         // add file owner our database of file locations
 

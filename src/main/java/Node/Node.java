@@ -16,6 +16,7 @@ public class Node {
     private int nextID;
     private int previousID;
     private UDPInterface udpInterface;
+    private TCPInterface tcpInterface;
     public boolean hasFailed = false;
 
     public LocalFileManager fileManager;
@@ -29,6 +30,10 @@ public class Node {
         try {
             this.udpInterface = new UDPInterface(this);
             new Thread(this.udpInterface).start();
+
+            this.tcpInterface = new TCPInterface(this);
+            new Thread(this.tcpInterface).start();
+
         } catch (Exception e) {
             System.err.println("[NS] " + e);
             hasFailed = true;
@@ -71,6 +76,10 @@ public class Node {
     public void setNextID(int nextID) {this.nextID = nextID;}
     public int getPreviousID() {return previousID;}
     public void setPreviousID(int previousID) {this.previousID = previousID;}
+
+    public TCPInterface getTcpInterface() {
+        return tcpInterface;
+    }
 
     public void discovery() throws IOException {
         Message m = new DiscoveryMessage(this.nodeID);
