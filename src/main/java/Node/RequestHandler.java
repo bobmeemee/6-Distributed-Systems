@@ -3,6 +3,7 @@ package Node;
 import Messages.*;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -140,15 +141,21 @@ public class RequestHandler extends Thread {
                 FileOwnerIDMessage fileMessage = gson.fromJson(json, FileOwnerIDMessage.class);
                 InetAddress ownerIP = fileMessage.getOwnerIP();
                 int fileID = fileMessage.getContent();
+                int ownerID = fileMessage.getOwnerID();
                 try {
                     if(ownerIP == InetAddress.getByName("0.0.0.0")) {
                         System.out.println("[NODE]: filename for file with hash " + fileID + " is not available");
                     } else {
                         // send file to dest with tcp interface
-                        // this.node.getFileManager().
-                        // this.node.getTcpInterface().sendFile(ownerIP, ,);
+                        File file = this.node.getFileManager().getFile(fileID);
+                        FileLog log = this.node.getFileManager().getFileLog(fileID);
 
-                        // add file owner our database of file locations
+                        // change file log
+                        log.setOwnerID(ownerID);
+                        log.setReplicated(true);
+
+                        // send replica to owner via tcp
+                        this.node.getTcpInterface().sendFile(ownerIP, file,log);
 
                     }
 

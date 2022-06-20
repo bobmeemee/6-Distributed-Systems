@@ -4,13 +4,15 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class FileOwnerIDMessage extends Message {
-    InetAddress ownerIP;
+    private InetAddress ownerIP;
+    private int ownerID;
 
-    public FileOwnerIDMessage(int sender, int fileID, InetAddress ownerIP) {
+    public FileOwnerIDMessage(int sender, int fileID, int ownerID ,InetAddress ownerIP) {
         super(sender);
         super.type="FileOwnerIDMessage";
         super.content = fileID;
         this.ownerIP = ownerIP;
+        this.ownerID = ownerID;
     }
 
     public FileOwnerIDMessage(int sender, int fileID) throws UnknownHostException {
@@ -22,5 +24,9 @@ public class FileOwnerIDMessage extends Message {
 
     public InetAddress getOwnerIP() {
         return ownerIP;
+    }
+
+    public int getOwnerID() {
+        return ownerID;
     }
 }

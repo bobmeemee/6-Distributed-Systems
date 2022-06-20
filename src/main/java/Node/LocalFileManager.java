@@ -14,19 +14,31 @@ import java.util.Objects;
 public class LocalFileManager extends Thread{
     private final Node node;
     private HashMap<File, FileLog> fileMap;
+    private HashMap<Integer, File> fileIDMap; // collapse in one map?
     private ArrayList<String> filenames;
 
     public LocalFileManager(Node node, String filepath) {
         this.node = node;
         fileMap = new HashMap<>();
+        fileIDMap = new HashMap<>();
     }
 
 
 
     public FileLog createFileLog(File file) {
         String filename = file.getName();
+        fileIDMap.put(HashFunction.hash(filename), file);
         return new FileLog(filename, HashFunction.hash(filename), -1, this.node.getNodeID());
     }
+
+    public File getFile(int fileID) {
+        return this.fileIDMap.get(fileID);
+    }
+
+    public FileLog getFileLog(int fileID) {
+        return this.fileMap.get(this.getFile(fileID));
+    }
+
 
     public void initialize() {
         File f = new File("C:\\Users\\ilias\\derde_bachelor\\6-DS\\lab5\\src\\main\\java\\Node\\files");

@@ -80,7 +80,7 @@ public class NamingServerRequestHandler extends Thread {
                         // do not replicate if local file owner is remote owner or if filename is taken
                         if(ownerID != senderID && !this.server.getFileMap().containsKey(fileID)) {
                             InetAddress ownerIP = InetAddress.getByName(this.server.getNodeIP(ownerID));
-                            response = new FileOwnerIDMessage(this.server.getServerID(),fileID, ownerIP);
+                            response = new FileOwnerIDMessage(this.server.getServerID(),fileID, ownerID ,ownerIP);
                             responseIsMulticast = false;
                         } else if(this.server.getFileMap().containsKey(fileID)) {
                             response = new FileOwnerIDMessage(this.server.getServerID(),fileID); // no owner
