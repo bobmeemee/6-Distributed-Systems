@@ -1,8 +1,6 @@
 package Node;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,20 +22,30 @@ public class TCPInterface implements Runnable{
         }
     }
 
-    public void sendUnicast(InetAddress destinationAddress) {
+    public void sendFile(InetAddress destinationAddress, File file, FileLog log) {
         try {
-            Socket sendSocket = new Socket("localhost",sendPort);
+            Socket sendSocket = new Socket(destinationAddress,sendPort);
 
-            OutputStream outputStream;
-            OutputStreamWriter outputStreamWriter;
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(sendSocket.getOutputStream());
+            objectOutputStream.writeObject(log);
 
+            DataOutputStream dataOutputStream = new DataOutputStream(sendSocket.getOutputStream());
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            int bytes;
+            byte[] buf = new byte[1024];
+            while ((bytes=fileInputStream.read(buf))!=-1){
+                dataOutputStream.write(buf,0, bytes);
+                dataOutputStream.flush();
+            }
+            fileInputStream.close();
 
         } catch (IOException e) {
             this.node.hasFailed = true;
             e.printStackTrace();
         }
-
     }
+
 
 
     @Override
@@ -45,7 +53,7 @@ public class TCPInterface implements Runnable{
         System.out.println("[NODE TCP]: Opening TCP listening on port" + receivePort);
         while(true) {
             try {
-                Socket sendSocket = receiveSocket.accept();
+                Socket socket = receiveSocket.accept();
 
             } catch (IOException e) {
                 e.printStackTrace();
