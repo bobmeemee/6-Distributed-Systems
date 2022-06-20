@@ -40,6 +40,7 @@ public class TCPFileHandler extends Thread{
 
             // add replica to database
             this.node.getReplicaManager().addReplica(log);
+            System.out.println(log);
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

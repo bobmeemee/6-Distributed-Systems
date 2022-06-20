@@ -2,6 +2,7 @@ package Node;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 public class FileLog implements Serializable {
     private String filename;
@@ -9,6 +10,7 @@ public class FileLog implements Serializable {
     private int ownerID;
     private int localOwnerID;
     private boolean replicated;
+    private ArrayList<Integer> downloadLocations;
 
     // not sure if needed
     private InetAddress ownerIP;
@@ -19,6 +21,8 @@ public class FileLog implements Serializable {
         this.fileID = fileID;
         this.ownerID = ownerID;
         this.localOwnerID = localOwnerID;
+        this.downloadLocations = new ArrayList<Integer>();
+        this.downloadLocations.add(this.localOwnerID);
     }
 
     public void setOwnerIP(InetAddress ownerIP) {
@@ -51,7 +55,15 @@ public class FileLog implements Serializable {
 
     public void setOwnerID(int ownerID) {
         this.ownerID = ownerID;
+        if(this.downloadLocations.size() == 1) {
+            this.downloadLocations.add(ownerID);
+        }
     }
+
+    public void setDownloadLocations(ArrayList<Integer> downloadLocations) {
+        this.downloadLocations = downloadLocations;
+    }
+
 
     public void setLocalOwnerID(int localOwnerID) {
         this.localOwnerID = localOwnerID;

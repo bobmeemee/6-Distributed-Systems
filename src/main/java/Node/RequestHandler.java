@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -171,6 +172,11 @@ public class RequestHandler extends Thread {
 
                         // change file log
                         log.setOwnerID(ownerID);
+                        log.setOwnerIP(ownerIP);
+                        ArrayList<Integer> d = new ArrayList<Integer>();
+                        d.add(this.node.getNodeID());
+                        d.add(ownerID);
+                        log.setDownloadLocations(d);
                         log.setReplicated(true);
 
                         // send replica to owner via tcp
@@ -181,6 +187,13 @@ public class RequestHandler extends Thread {
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
+
+                break;
+
+            case "IPRespondMessage":
+                IPRespondMessage ipm = gson.fromJson(json, IPRespondMessage.class);
+                InetAddress destinationAddress = ipm.getIP();
+
 
                 break;
 

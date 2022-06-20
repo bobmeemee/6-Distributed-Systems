@@ -57,6 +57,7 @@ public class TCPInterface implements Runnable{
             try {
                 Socket socket = receiveSocket.accept();
                 System.out.println("[NODE TCP]: accepted connection from"  + socket.getInetAddress() );
+                /* uncomment if wanting to wait for first file written
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 
@@ -76,11 +77,15 @@ public class TCPInterface implements Runnable{
                 fileOutputStream.close();
 
                 // add replica to database
-                this.node.getReplicaManager().addReplica(log);
-                // TCPFileHandler tfh = new TCPFileHandler(this.node, socket );
-                // tfh.start();
 
-            } catch (IOException | ClassNotFoundException e) {
+
+                this.node.getReplicaManager().addReplica(log);
+
+                 */
+                TCPFileHandler tfh = new TCPFileHandler(this.node, socket );
+                tfh.start();
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

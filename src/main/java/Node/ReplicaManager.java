@@ -1,11 +1,13 @@
 package Node;
 
 import Messages.DeleteFileMessage;
+import Messages.IPRequestMessage;
 import Utils.HashFunction;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 
 public class ReplicaManager extends Thread{
@@ -20,6 +22,22 @@ public class ReplicaManager extends Thread{
         this.fileLogs = new HashMap<>();
         this.path = path;
     }
+
+    public void shutdown() throws IOException {
+        HashMap<Integer, FileLog> h = this.fileLogs;
+        for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
+            if(!(entry.getKey() == this.node.getPreviousID())) {
+                IPRequestMessage m =  new IPRequestMessage(this.node.getNodeID(), entry.getKey());
+                this.node.getUdpInterface().sendUnicast(m, InetAddress.getByName("255.255.255.255"), 8000);
+
+            }
+        }
+
+
+        this.interrupt();
+    }
+
+
 
 
 
@@ -39,6 +57,7 @@ public class ReplicaManager extends Thread{
     // transferfunction for deletion here? or maybe just a getter?
 
     // not necessary apparently
+    // looks for deletions and deletes replicas -> should be done with syncagents
     @Override
     public void run() {
         ArrayList<String> filenames = new ArrayList<>();
