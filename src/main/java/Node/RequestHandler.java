@@ -190,10 +190,30 @@ public class RequestHandler extends Thread {
 
                 break;
 
-            case "IPRespondMessage":
-                IPRespondMessage ipm = gson.fromJson(json, IPRespondMessage.class);
-                InetAddress destinationAddress = ipm.getIP();
+            case "RequestFileDestinationMessage":
+                if(message.getContent() == this.node.getNodeID()) {
+                    RequestFileDestinationMessage fdm = gson.fromJson(json, RequestFileDestinationMessage.class);
+                    if(this.node.getFileManager().getFile(fdm.getFileID()) != null) {
+                        response = new RequestFileDestinationMessage(senderID, this.node.getPreviousID(), fdm.getFileID(),
+                                senderIP);
+                        System.out.println("[NODE]: Node is local owner, passing message");
+                    } else {
+                        // reply with dest
+                        ResponseFileDestinationMessage rfdm = new ResponseFileDestinationMessage(this.node.getNodeID(),
+                                fdm.getFileID());
+                        try {
+                            System.out.println("[NODE UDP]: Responding to " + senderID + " with this node as" +
+                                    " file destination IP");
+                            this.node.getUdpInterface().sendUnicast(rfdm, fdm.getRequestorIP(), receivedMessage.getPort());
+                        } catch (IOException e) {
+                            node.hasFailed = true;
+                            e.printStackTrace();
+                        }
 
+                    }
+                }
+                break;
+            case "ResponseFileDestinationMessage":
 
                 break;
 
@@ -202,9 +222,16 @@ public class RequestHandler extends Thread {
                 break;
         }
 
-        if(sendUnicastResponse) {
+        if(sendUnicastResponse && !Objects.equals(response.getType(), "message")) {
             try {
                 this.node.getUdpInterface().sendUnicast(response, senderIP, receivedMessage.getPort());
+            } catch (IOException e) {
+                node.hasFailed = true;
+                e.printStackTrace();
+            }
+        } else if(!Objects.equals(response.getType(), "message")) {
+            try {
+                this.node.getUdpInterface().sendMulticast(response);
             } catch (IOException e) {
                 node.hasFailed = true;
                 e.printStackTrace();

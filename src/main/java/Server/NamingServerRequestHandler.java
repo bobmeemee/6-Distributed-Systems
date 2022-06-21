@@ -2,10 +2,8 @@ package Server;
 
 
 import Messages.FileOwnerIDMessage;
-import Messages.IPRespondMessage;
 import Messages.Message;
 import Messages.NodeCountMessage;
-import Utils.HashFunction;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -95,17 +93,6 @@ public class NamingServerRequestHandler extends Thread {
                     }
                 }
 
-                break;
-
-            case "IPRequestMessage":
-                try {
-                    InetAddress requestedAddress = InetAddress.getByName(this.server.getNodeIP(message.getContent()));
-                    response = new IPRespondMessage(this.server.getServerID(), requestedAddress);
-                    responseIsMulticast = false;
-
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
                 break;
 
         }

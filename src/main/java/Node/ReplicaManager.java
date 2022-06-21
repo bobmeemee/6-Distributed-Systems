@@ -1,13 +1,11 @@
 package Node;
 
 import Messages.DeleteFileMessage;
-import Messages.IPRequestMessage;
-import Utils.HashFunction;
+import Messages.RequestFileDestinationMessage;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
 
 public class ReplicaManager extends Thread{
@@ -27,8 +25,9 @@ public class ReplicaManager extends Thread{
         HashMap<Integer, FileLog> h = this.fileLogs;
         for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
             if(!(entry.getKey() == this.node.getPreviousID())) {
-                IPRequestMessage m =  new IPRequestMessage(this.node.getNodeID(), entry.getKey());
-                this.node.getUdpInterface().sendUnicast(m, InetAddress.getByName("255.255.255.255"), 8000);
+                RequestFileDestinationMessage m =  new RequestFileDestinationMessage(this.node.getNodeID(),
+                        this.node.getPreviousID(),entry.getKey(), InetAddress.getByName("localhost"));
+                this.node.getUdpInterface().sendMulticast(m);
 
             }
         }
