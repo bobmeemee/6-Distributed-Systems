@@ -186,7 +186,7 @@ public class RequestHandler extends Thread {
 
                         // send updated log to local owner
                         UpdateFileLogMessage flm = new UpdateFileLogMessage(this.node.getNodeID(), fileID, log);
-                        this.node.getUdpInterface().sendUnicast(flm, flm.getLog().getLocalOwnerIP(), 8002);
+                        this.node.getUdpInterface().sendUnicast(flm, flm.getLog().getLocalOwnerIP(), 8001);
 
                         this.node.getReplicaManager().decrementFilesToMove();
 
