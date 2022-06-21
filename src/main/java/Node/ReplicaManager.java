@@ -53,6 +53,9 @@ public class ReplicaManager extends Thread{
         return fileLogs;
     }
 
+    public  FileLog getFileLog(int fileID) {
+        return this.fileLogs.get(fileID);
+    }
     // transferfunction for deletion here? or maybe just a getter?
 
     // not necessary apparently

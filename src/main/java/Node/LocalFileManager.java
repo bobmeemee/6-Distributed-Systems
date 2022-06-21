@@ -126,11 +126,14 @@ public class LocalFileManager extends Thread{
                 this.filenames = newFileNames;
             }
 
-            // file deleted -> send update if file is replicated
+            // file deleted -> send update if file is replicated (only log)
             if(this.filenames.size() > newFileNames.size() && f1List != null) {
                 for (File file : f1List) {
                     String filename = file.getName();
                     if(!newFileNames.contains(filename) && fileMap.get(file).isReplicated()) {
+                        FileLog log = this.fileMap.get(file);
+                        // delete file from log
+                        // send log -> tcp or udp w/ changes?
 
                         int fileID = HashFunction.hash(filename);
                         // send delete file message tcp? udp?

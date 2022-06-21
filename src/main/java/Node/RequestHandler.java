@@ -214,6 +214,22 @@ public class RequestHandler extends Thread {
                 }
                 break;
             case "ResponseFileDestinationMessage":
+                // get file and log
+                FileLog log = this.node.getReplicaManager().getFileLog(message.getContent());
+                File file = new File("src/main/java/Node/replicas/" + log.getFilename());
+                // update log
+                log.setOwnerIP(senderIP);
+                log.setOwnerID(senderID);
+                ArrayList<Integer> l = new ArrayList<>();
+                l.add(log.getLocalOwnerID());
+                l.add(senderID);
+                log.setDownloadLocations(l);
+
+                // send file and updated log
+                this.node.getTcpInterface().sendFile(senderIP, file, log);
+
+                // update localowner log
+
 
                 break;
 
