@@ -56,7 +56,25 @@ public class Node {
             System.out.println("[NODE] Shutdown hook");
             try {
                 shutdown();
-            } catch (IOException e) {
+                this.replicaManager.shutdown();
+                if(this.replicaManager.getFilesToMove() == 0) {
+                    System.out.println("[NODE]: No replicas, shutting down...");
+                } else {
+                    Thread.sleep(5000);
+                }
+                if(replicaManager.getFilesToMove() == 0) {
+                    System.out.println("[NODE] All replicas moved, shutting down...");
+                } else {
+                    System.out.println("[NODE] Moving replicas...");
+                    Thread.sleep(5000);
+                }
+                 if(this.replicaManager.getFilesToMove() == 0) {
+                     System.out.println("[NODE] All replicas moved, shutting down");
+                 } else {
+                     System.out.println("[NODE] Failed to move all replicas");
+                 }
+
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }));

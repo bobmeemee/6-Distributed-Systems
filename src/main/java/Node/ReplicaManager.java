@@ -14,6 +14,16 @@ public class ReplicaManager extends Thread{
     private HashMap<Integer, FileLog> fileLogs;
     private final String path;
 
+    private int filesToMove;
+
+    public int getFilesToMove() {
+        return filesToMove;
+    }
+
+    public void decrementFilesToMove() {
+        this.filesToMove--;
+    }
+
     public ReplicaManager(Node node, String path) {
         this.node = node;
         this.files = new HashMap<>();
@@ -22,16 +32,17 @@ public class ReplicaManager extends Thread{
     }
 
     public void shutdown() throws IOException {
+        System.out.println("[NODE] Replicamanager shutting down");
         HashMap<Integer, FileLog> h = this.fileLogs;
-        for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
-            if(!(entry.getKey() == this.node.getPreviousID())) {
+        filesToMove = h.size();
+        if(filesToMove!= 0) {
+            for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
                 RequestFileDestinationMessage m =  new RequestFileDestinationMessage(this.node.getNodeID(),
-                        this.node.getPreviousID(),entry.getKey(), InetAddress.getByName("localhost"));
-                this.node.getUdpInterface().sendMulticast(m);
+                        this.node.getPreviousID(),entry.getKey(),
+                        InetAddress.getByName("localhost"));this.node.getUdpInterface().sendMulticast(m);
 
             }
         }
-
 
         this.interrupt();
     }
@@ -43,14 +54,6 @@ public class ReplicaManager extends Thread{
     public void addReplica(FileLog log) {
         fileLogs.put(log.getFileID(), log);
         System.out.println("[NODE]: Replicamanager added file " + log.getFilename());
-    }
-
-    public List<Integer> getReplicaIDs() {
-        return new ArrayList<>(fileLogs.keySet());
-    }
-
-    public HashMap<Integer, FileLog> getfileLogs() {
-        return fileLogs;
     }
 
     public  FileLog getFileLog(int fileID) {

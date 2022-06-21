@@ -42,6 +42,17 @@ public class LocalFileManager extends Thread{
         return this.fileMap.get(this.getFile(fileID));
     }
 
+    public void updateFileLog(int fileID, FileLog fileLog) {
+        File f = this.fileIDMap.get(fileID);
+        System.out.println("[NODE]: old log");
+        System.out.println(fileMap.get(f));
+        this.fileMap.replace(f, fileLog);
+        System.out.println("[NODE]: new log");
+        System.out.println(fileMap.get(f));
+    }
+
+
+
 
     public void initialize() {
         File f = new File(this.filepath);

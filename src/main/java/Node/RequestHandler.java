@@ -172,8 +172,10 @@ public class RequestHandler extends Thread {
 
                         // change file log
                         log.setOwnerID(ownerID);
+                        log.setLocalOwnerID(this.node.getNodeID());
                         log.setOwnerIP(ownerIP);
-                        ArrayList<Integer> d = new ArrayList<Integer>();
+                        log.setLocalOwnerIP(InetAddress.getByName("localhost"));
+                        ArrayList<Integer> d = new ArrayList<>();
                         d.add(this.node.getNodeID());
                         d.add(ownerID);
                         log.setDownloadLocations(d);
@@ -182,10 +184,25 @@ public class RequestHandler extends Thread {
                         // send replica to owner via tcp
                         this.node.getTcpInterface().sendFile(ownerIP, file,log);
 
-                    }
+                        // send updated log to local owner
+                        UpdateFileLogMessage flm = new UpdateFileLogMessage(this.node.getNodeID(), fileID, log);
+                        this.node.getUdpInterface().sendUnicast(flm, flm.getLog().getLocalOwnerIP(), 8002);
 
-                } catch (UnknownHostException e) {
+                        this.node.getReplicaManager().decrementFilesToMove();
+
+
+                    }
+                } catch (IOException e) {
                     e.printStackTrace();
+                }
+
+                break;
+
+            case "UpdateFileLogMessage:":
+                UpdateFileLogMessage filelogMessage = gson.fromJson(json, UpdateFileLogMessage.class);
+
+                if( this.node.getFileManager().getFileLog(message.getContent()) != null) {
+                    this.node.getFileManager().updateFileLog(message.getContent(), filelogMessage.getLog());
                 }
 
                 break;

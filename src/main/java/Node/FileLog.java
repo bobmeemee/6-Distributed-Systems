@@ -16,6 +16,10 @@ public class FileLog implements Serializable {
     private InetAddress ownerIP;
     private InetAddress localOwnerIP;
 
+    public void setLocalOwnerIP(InetAddress localOwnerIP) {
+        this.localOwnerIP = localOwnerIP;
+    }
+
     public FileLog(String filename, int fileID, int ownerID, int localOwnerID) {
         this.filename = filename;
         this.fileID = fileID;
