@@ -188,9 +188,6 @@ public class RequestHandler extends Thread {
                         UpdateFileLogMessage flm = new UpdateFileLogMessage(this.node.getNodeID(), fileID, log);
                         this.node.getUdpInterface().sendUnicast(flm, flm.getLog().getLocalOwnerIP(), 8001);
 
-                        this.node.getReplicaManager().decrementFilesToMove();
-
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -246,6 +243,17 @@ public class RequestHandler extends Thread {
                 this.node.getTcpInterface().sendFile(senderIP, file, log);
 
                 // update localowner log
+                UpdateFileLogMessage ufm = new UpdateFileLogMessage(this.node.getNodeID(), log.getFileID(), log);
+                try {
+                    this.node.getUdpInterface().sendUnicast(ufm, log.getLocalOwnerIP(), 8001);
+                } catch (IOException e) {
+                    this.node.hasFailed = true;
+                    e.printStackTrace();
+                }
+
+                // let node know file is replicated when shutdown
+                this.node.getReplicaManager().decrementFilesToMove();
+
 
 
                 break;

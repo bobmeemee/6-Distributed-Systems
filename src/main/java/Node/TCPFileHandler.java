@@ -40,7 +40,7 @@ public class TCPFileHandler extends Thread{
 
             // add replica to database
             this.node.getReplicaManager().addReplica(log);
-            System.out.println(log);
+            System.out.println("[NODE TCP]: received file to be replicated " + filename);
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

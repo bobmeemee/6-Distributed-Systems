@@ -35,6 +35,7 @@ public class ReplicaManager extends Thread{
         System.out.println("[NODE] Replicamanager shutting down");
         HashMap<Integer, FileLog> h = this.fileLogs;
         filesToMove = h.size();
+        System.out.println("[NODE] Replicamanager requesting destination for " + filesToMove + " files" );
         if(filesToMove!= 0) {
             for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
                 RequestFileDestinationMessage m =  new RequestFileDestinationMessage(this.node.getNodeID(),
