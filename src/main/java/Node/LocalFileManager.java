@@ -1,11 +1,13 @@
 package Node;
 
 import Messages.GetFileOwnerMessage;
+import Messages.UpdateFileLogMessage;
 import Utils.HashFunction;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -143,13 +145,21 @@ public class LocalFileManager extends Thread{
                     String filename = file.getName();
                     if(!newFileNames.contains(filename) && fileMap.get(file).isReplicated()) {
                         FileLog log = this.fileMap.get(file);
-                        // delete file from log
-                        // send log -> tcp or udp w/ changes?
+                        log.setLocalOwnerID(-1);
+                        ArrayList<Integer> l = new ArrayList<>();
+                        l.add(log.getOwnerID());
+                        log.setDownloadLocations(l);
+                        try {
+                            log.setLocalOwnerIP(InetAddress.getByName("0.0.0.0"));
+                            UpdateFileLogMessage uflm =  new UpdateFileLogMessage(node.getNodeID(), log.getFileID(), log);
+                            node.getUdpInterface().sendUnicast(uflm, log.getOwnerIP(), 8001);
 
-                        int fileID = HashFunction.hash(filename);
-                        // send delete file message tcp? udp?
-
-
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            node.hasFailed = true;
+                        }
+                        fileMap.remove(file);
+                        fileIDMap.remove(log.getFileID());
                     }
                 }
             }
