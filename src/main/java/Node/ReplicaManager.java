@@ -38,8 +38,8 @@ public class ReplicaManager extends Thread{
         if(filesToMove!= 0) {
             for (HashMap.Entry<Integer, FileLog> entry : h.entrySet()) {
                 RequestFileDestinationMessage m =  new RequestFileDestinationMessage(this.node.getNodeID(),
-                        this.node.getPreviousID(),entry.getKey(),
-                        InetAddress.getByName("localhost"));this.node.getUdpInterface().sendMulticast(m);
+                        this.node.getPreviousID(),entry.getKey(), entry.getValue().getOwnerIP());
+                this.node.getUdpInterface().sendMulticast(m);
 
             }
         }

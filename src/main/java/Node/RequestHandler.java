@@ -174,7 +174,7 @@ public class RequestHandler extends Thread {
                         log.setOwnerID(ownerID);
                         log.setLocalOwnerID(this.node.getNodeID());
                         log.setOwnerIP(ownerIP);
-                        log.setLocalOwnerIP(InetAddress.getByName("localhost"));
+                        log.setLocalOwnerIP(InetAddress.getLocalHost());
                         ArrayList<Integer> d = new ArrayList<>();
                         d.add(this.node.getNodeID());
                         d.add(ownerID);
